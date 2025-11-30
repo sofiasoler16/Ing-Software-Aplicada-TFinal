@@ -72,6 +72,31 @@
           }
         </div>
 
+        <div class="mb-3">
+          <label class="form-label" jhiTranslate="gymTrackerApp.workout.exercises">Exercises</label>
+
+          @for (group of muscleGroups; track group) {
+            <div class="mt-2">
+              <strong>{{ group }}</strong>
+
+              @for (exercise of exercisesByGroup[group]; track exercise.id) {
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [id]="'exercise_' + exercise.id"
+                    [checked]="isExerciseSelected(exercise)"
+                    (change)="onExerciseToggle(exercise, $any($event.target).checked)"
+                  />
+                  <label class="form-check-label" [for]="'exercise_' + exercise.id">
+                    {{ exercise.name }}
+                  </label>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
         @let notesRef = editForm.get('notes')!;
         <div class="mb-3">
           <label class="form-label" for="field_notes" jhiTranslate="gymTrackerApp.workout.notes">Notes</label>
@@ -85,23 +110,6 @@
               }
             </div>
           }
-        </div>
-
-        <div class="mb-3">
-          <label for="field_exercises" jhiTranslate="gymTrackerApp.workout.exercises">Exercises</label>
-          <select
-            class="form-control"
-            id="field_exercises"
-            data-cy="exercises"
-            multiple
-            name="exercises"
-            formControlName="exercises"
-            [compareWith]="compareExercise"
-          >
-            @for (exerciseOption of exercisesSharedCollection; track $index) {
-              <option [ngValue]="exerciseOption">{{ exerciseOption.name }}</option>
-            }
-          </select>
         </div>
       </div>
 

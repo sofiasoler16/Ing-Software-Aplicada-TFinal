@@ -12,6 +12,7 @@ import { ExerciseService } from 'app/entities/exercise/service/exercise.service'
 import { IWorkout } from '../workout.model';
 import { WorkoutService } from '../service/workout.service';
 import { WorkoutFormGroup, WorkoutFormService } from './workout-form.service';
+import { MuscleGroup } from 'app/entities/enumerations/muscle-group.model';
 
 @Component({
   selector: 'jhi-workout-update',
@@ -23,6 +24,9 @@ export class WorkoutUpdateComponent implements OnInit {
   workout: IWorkout | null = null;
 
   exercisesSharedCollection: IExercise[] = [];
+
+  muscleGroups: string[] = Object.values(MuscleGroup);
+  exercisesByGroup: Record<string, IExercise[]> = {};
 
   protected workoutService = inject(WorkoutService);
   protected workoutFormService = inject(WorkoutFormService);
@@ -97,6 +101,46 @@ export class WorkoutUpdateComponent implements OnInit {
           this.exerciseService.addExerciseToCollectionIfMissing<IExercise>(exercises, ...(this.workout?.exercises ?? [])),
         ),
       )
-      .subscribe((exercises: IExercise[]) => (this.exercisesSharedCollection = exercises));
+      .subscribe((exercises: IExercise[]) => {
+        this.exercisesSharedCollection = exercises;
+        this.groupExercisesByMuscle();
+      });
+  }
+
+  private groupExercisesByMuscle(): void {
+    // Inicializo el objeto con todos los grupos vacíos
+    this.exercisesByGroup = {};
+    for (const group of this.muscleGroups) {
+      this.exercisesByGroup[group] = [];
+    }
+
+    // Agrupo los ejercicios por muscleGroup
+    for (const ex of this.exercisesSharedCollection) {
+      const key = ex.muscleGroup as string | undefined;
+      if (key && this.exercisesByGroup[key]) {
+        this.exercisesByGroup[key].push(ex);
+      }
+    }
+  }
+
+  isExerciseSelected(exercise: IExercise): boolean {
+    const selected: IExercise[] = this.editForm.get('exercises')!.value ?? [];
+    return selected.some(e => e.id === exercise.id);
+  }
+
+  onExerciseToggle(exercise: IExercise, checked: boolean): void {
+    let selected: IExercise[] = this.editForm.get('exercises')!.value ?? [];
+
+    if (checked) {
+      // Agrego si no estaba
+      if (!selected.some(e => e.id === exercise.id)) {
+        selected = [...selected, exercise];
+      }
+    } else {
+      // Saco si estaba
+      selected = selected.filter(e => e.id !== exercise.id);
+    }
+
+    this.editForm.patchValue({ exercises: selected });
   }
 }

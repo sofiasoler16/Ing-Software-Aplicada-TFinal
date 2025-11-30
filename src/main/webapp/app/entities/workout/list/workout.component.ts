@@ -78,6 +78,14 @@ export class WorkoutComponent implements OnInit {
     this.handleNavigation(page, this.sortState());
   }
 
+  getExerciseNames(workout: IWorkout): string {
+    if (!workout.exercises || workout.exercises.length === 0) {
+      return '';
+    }
+
+    return workout.exercises.map(e => e.name).join(', ');
+  }
+
   protected fillComponentAttributeFromRoute(params: ParamMap, data: Data): void {
     const page = params.get(PAGE_HEADER);
     this.page = +(page ?? 1);
