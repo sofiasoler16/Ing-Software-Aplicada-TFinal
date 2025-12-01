@@ -161,4 +161,46 @@ describe('Workout Management Update Component', () => {
       });
     });
   });
+
+  describe('Exercise selection helpers', () => {
+    it('should return true when exercise is selected', () => {
+      const exercise: IExercise = { id: 1, name: 'Sentadilla', muscleGroup: 'LEGS' };
+
+      // Simulamos que el formulario ya tiene ese ejercicio seleccionado
+      comp.editForm.patchValue({ exercises: [exercise] });
+
+      expect(comp.isExerciseSelected(exercise)).toBe(true);
+    });
+
+    it('should return false when exercise is not selected', () => {
+      const exercise: IExercise = { id: 1, name: 'Sentadilla', muscleGroup: 'LEGS' };
+
+      // Form sin ejercicios seleccionados
+      comp.editForm.patchValue({ exercises: [] });
+
+      expect(comp.isExerciseSelected(exercise)).toBe(false);
+    });
+
+    it('should add exercise when toggled on', () => {
+      const exercise: IExercise = { id: 1, name: 'Hip Thrust', muscleGroup: 'GLUTES' };
+
+      comp.editForm.patchValue({ exercises: [] });
+
+      comp.onExerciseToggle(exercise, true);
+
+      const selected: IExercise[] = comp.editForm.get('exercises')!.value ?? [];
+      expect(selected.some(e => e.id === exercise.id)).toBe(true);
+    });
+
+    it('should remove exercise when toggled off', () => {
+      const exercise: IExercise = { id: 1, name: 'Hip Thrust', muscleGroup: 'GLUTES' };
+
+      comp.editForm.patchValue({ exercises: [exercise] });
+
+      comp.onExerciseToggle(exercise, false);
+
+      const selected: IExercise[] = comp.editForm.get('exercises')!.value ?? [];
+      expect(selected.some(e => e.id === exercise.id)).toBe(false);
+    });
+  });
 });

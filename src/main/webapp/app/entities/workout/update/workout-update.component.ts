@@ -63,6 +63,27 @@ export class WorkoutUpdateComponent implements OnInit {
     }
   }
 
+  isExerciseSelected(exercise: IExercise): boolean {
+    const selected: IExercise[] = this.editForm.get('exercises')!.value ?? [];
+    return selected.some(e => e.id === exercise.id);
+  }
+
+  onExerciseToggle(exercise: IExercise, checked: boolean): void {
+    let selected: IExercise[] = this.editForm.get('exercises')!.value ?? [];
+
+    if (checked) {
+      // Agrego si no estaba
+      if (!selected.some(e => e.id === exercise.id)) {
+        selected = [...selected, exercise];
+      }
+    } else {
+      // Saco si estaba
+      selected = selected.filter(e => e.id !== exercise.id);
+    }
+
+    this.editForm.patchValue({ exercises: selected });
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IWorkout>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
       next: () => this.onSaveSuccess(),
@@ -117,30 +138,9 @@ export class WorkoutUpdateComponent implements OnInit {
     // Agrupo los ejercicios por muscleGroup
     for (const ex of this.exercisesSharedCollection) {
       const key = ex.muscleGroup as string | undefined;
-      if (key && this.exercisesByGroup[key]) {
+      if (key) {
         this.exercisesByGroup[key].push(ex);
       }
     }
-  }
-
-  isExerciseSelected(exercise: IExercise): boolean {
-    const selected: IExercise[] = this.editForm.get('exercises')!.value ?? [];
-    return selected.some(e => e.id === exercise.id);
-  }
-
-  onExerciseToggle(exercise: IExercise, checked: boolean): void {
-    let selected: IExercise[] = this.editForm.get('exercises')!.value ?? [];
-
-    if (checked) {
-      // Agrego si no estaba
-      if (!selected.some(e => e.id === exercise.id)) {
-        selected = [...selected, exercise];
-      }
-    } else {
-      // Saco si estaba
-      selected = selected.filter(e => e.id !== exercise.id);
-    }
-
-    this.editForm.patchValue({ exercises: selected });
   }
 }
